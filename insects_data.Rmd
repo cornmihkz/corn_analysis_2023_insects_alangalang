@@ -21,7 +21,7 @@ insect_raw <- read_csv("analysis_insect_pests/pest.csv")
 # corn plant hopper damage rating
 hopper_df <- 
   insect_raw %>%
-  select(FarmID, `Collection Date`, Province, Municipality, `Crop Stage`, `Corn Type`, Variety, 
+  select(FarmID, `Collection Date`, Province, Municipality, `Crop Stage`, Treatment, `Corn Type`, Variety, 
          contains("Corn Plant Hopper - Damage Rating")) %>%
   filter(Municipality == "Alangalang")
 
@@ -38,14 +38,26 @@ hopper_dmg <-
 
 
 ```{r}
+# merged with monthly average weather parameters
 hopper_joined <-
   hopper_dmg %>% left_join(collection_weather_avg, by=c('Year', 'Month'))
 
+hopper_joined %>% names()
 ```
 
 
 ```{r}
+hopper_parsed <- 
+  hopper_joined %>% 
+  select(Municipality, collect_date, `Crop Stage`, Treatment, `Corn Type`, Variety, hopper_median_damage, mean_temp:median_humid) %>%
+  mutate(variety = case_when(str_detect(Variety, 'OPV') ~ "OPV White",
+                             str_detect(Variety, "\\b[MmAaCcHhOo]") ~ "Macho F1",
+                             str_detect(Variety, "^J") ~ "J505",
+                             TRUE ~ Variety)) %>% select(-Variety)
 
+hopper_parsed$variety %>% unique()
+hopper_parsed$`Corn Type` %>% unique()
+  
 ```
 
 
