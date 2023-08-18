@@ -1,0 +1,59 @@
+---
+title: "test_analyze_1"
+author: "Mihkail Cornell"
+date: "2023-07-26"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidymodels)
+library(tidyr)
+library(tidyverse)
+library(stringr)
+library(dplyr)
+
+insect_pest <- read_csv("Insect_Pest.csv")
+
+view(insect_pest)
+```
+
+```{r}
+insect_pest %>%
+  select(FarmID, Province, `Corn Type`, Treatment, contains("Aphids - Damage")) %>% 
+  rowwise() %>%
+  mutate(median_rating = median(c(`Aphids - Damage Rating 1`:`Aphids - Damage Rating 20`))) %>%
+  View()
+```
+
+
+```{r}
+insect_pest %>%
+  select(contains("Aphids - Damage")) %>% 
+  View()
+```
+
+```{r}
+insect_pest %>%
+  select(contains("Armyworm - Larvae")) %>% 
+  summarise()
+  View()
+```
+
+
+```{r}
+remarks_parse <-
+  insect_pest %>%
+  mutate(remarks = case_when(str_match(Remarks, "Light infestation") ~ "Light"))
+          
+remarks_parse$remarks
+```
+```{r}
+          
+           
+  str_replace_all(Remarks, 
+                         case_when("Light infestation.*" ~ "Light"),
+                         case_when("Light infestation.*" ~ "Moderate"))
+```
+
+

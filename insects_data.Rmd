@@ -1,0 +1,64 @@
+---
+title: "Insects_data"
+author: "Mihkail Cornell"
+date: "2023-08-01"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidymodels)
+library(tidyr)
+library(tidyverse)
+library(stringr)
+library(dplyr)
+library(lubridate)
+
+insect_raw <- read_csv("analysis_insect_pests/pest.csv")
+```
+
+```{r}
+# corn plant hopper damage rating
+hopper_df <- 
+  insect_raw %>%
+  select(FarmID, `Collection Date`, Province, Municipality, `Crop Stage`, `Corn Type`, Variety, 
+         contains("Corn Plant Hopper - Damage Rating")) %>%
+  filter(Municipality == "Alangalang")
+
+# convert date format
+hopper_df$collect_date <- 
+  as.Date(hopper_df$`Collection Date`, "%B %d, %Y")
+
+hopper_dmg <-
+  hopper_df %>% 
+  mutate(Year = year(collect_date), Month = month(collect_date))%>%
+  rowwise() %>%
+  mutate(hopper_median_damage = median(c(`Corn Plant Hopper - Damage Rating 1`:`Corn Plant Hopper - Damage Rating 10`))) 
+```
+
+
+```{r}
+hopper_joined <-
+  hopper_dmg %>% left_join(collection_weather_avg, by=c('Year', 'Month'))
+
+```
+
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
