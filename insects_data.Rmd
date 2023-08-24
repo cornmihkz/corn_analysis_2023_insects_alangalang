@@ -13,6 +13,7 @@ library(tidyverse)
 library(stringr)
 library(dplyr)
 library(lubridate)
+library(tidyselect)
 
 insect_raw <- read_csv("analysis_insect_pests/pest.csv")
 ```
@@ -31,18 +32,35 @@ hopper_df$collect_date <-
 
 hopper_dmg <-
   hopper_df %>% 
-  mutate(Year = year(collect_date), Month = month(collect_date))%>%
-  rowwise() %>%
-  mutate(hopper_median_damage = median(c(`Corn Plant Hopper - Damage Rating 1`:`Corn Plant Hopper - Damage Rating 10`))) 
+  mutate(Year = year(collect_date), Month = month(collect_date))
+  # rowwise() %>%
+  # mutate(hopper_median_damage = median(c(`Corn Plant Hopper - Damage Rating 1`:`Corn Plant Hopper - Damage Rating 20`))) 
 ```
 
 
 ```{r}
 # merged with monthly average weather parameters
-hopper_joined <-
-  hopper_dmg %>% left_join(collection_weather_avg, by=c('Year', 'Month'))
+classification_dmg <- function(x) {ordered(x, levels = c("No", "Light", "Moderate", "Severe", "High"))}
 
-hopper_joined %>% names()
+getmode <- function(v) {
+  uniqv <- unique(v)
+  uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+
+hopper_joined <-
+  hopper_dmg %>% 
+  left_join(collection_weather_avg, by=c('Year', 'Month')) %>%
+  # mutate_at(c(9:28), as.factor) %>%
+  mutate(across(contains("Corn Plant Hopper - Damage Rating "), 
+         ~ case_when( . == 1 ~ "No",
+                      . == 3 ~ "Light",
+                      . == 5 ~ "Moderate",
+                      . == 7 ~ "Severe",
+                      . == 9 ~ "High"), 
+         .names="Class_Infest_{.col}")) %>%
+  mutate(across(contains("Class_Infest_Corn Plant Hopper - Damage Rating "), ~classification_dmg(.))) %>%
+   mutate(Mode_class_infest_hopper = getmode(c_across(contains("Class_Infest_Corn Plant Hopper - Damage Rating "))))
+         
 ```
 
 
@@ -57,7 +75,26 @@ hopper_parsed <-
 
 hopper_parsed$variety %>% unique()
 hopper_parsed$`Corn Type` %>% unique()
-  
+```
+
+```{r}
+hopper_parsed %>%
+  ggplot(aes(mean_temp, hopper_median_damage)) +
+  geom_point() +
+  theme_minimal()
+
+hopper_parsed %>% names()
+```
+```{r}
+library(corrr)
+
+
+
+hopper_parsed %>%
+  correlate()
+```
+
+```{r}
 ```
 
 
