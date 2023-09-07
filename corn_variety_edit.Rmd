@@ -1,0 +1,324 @@
+---
+title: "corn_variety_edit"
+author: "Mihkail Cornell"
+date: "2023-09-05"
+output: html_document
+---
+
+```{r}
+library(dplyr)
+insect_raw$Variety %>% unique()
+```
+
+```{r}
+insect_variety_edit <-
+  insect_raw %>%
+  mutate(variety = case_when(str_detect(Variety, "^[OPV]+([_ ])+([WC]+|[WwHhIiTtEe]+)$") ~ "OPV White",
+                             str_detect(Variety, "^[OPV]+([ _]*)+[YyEeLlOoWw]+") ~ "OPV Yellow",
+                             str_detect(Variety, "^(M[ACHOacho]+)[_ ]*(F1)+") ~ "Macho F1",
+                             str_detect(Variety, "^(S+[WwEeEeTt])(\\s)*([CcOoRrNn]+)") ~ "Sweet Corn Hybrid",
+                             str_detect(Variety, "M[aALlAaGgKkIiTt]") ~ "Malagkit",
+                             str_detect(Variety, "\\b(Y+[EeLlLlOoWw_* COoRrNn]+)+") ~ "Yellow Corn Hybrid",
+                             str_detect(Variety, "(FILIPINA_703)+|(Filipina 703)+") ~ "Filipina 703-HY",
+                             str_detect(Variety, "^([Cn])+") ~ "Cn 224-OPV White",
+                             str_detect(Variety, "^\\(HYBRID YELLOW CORN\\)|^[Yellow Corn Hybrid]$") ~ "Hybrid Yellow Corn",
+                             str_detect(Variety, "^([Mem]+[ei]s+)+") ~ "Memphis Native White Corn",
+                             str_detect(Variety, "^((FILIPINA_802)+|(Fi[l+ĺ]+[iu]+(pi)+[n ]+a+(\\s|-))*802)+") ~ "Filipina 802-Hybrid White",
+                             str_detect(Variety, "[NK]+[ ]*[6410]+") ~ "NK6410 BT/GT Hybrid",
+                             str_detect(Variety, "B[Rr][Ii]+[GgHhTt]") ~ "Bright Jane",
+                             str_detect(Variety, "^J") ~ "J505",
+                             str_detect(Variety, "^(Native) ([Ww]hite)$") ~ "Native White",
+                             str_detect(Variety, "^(P+|[Pioneer]+)") ~ "Pioneer 266",
+                             str_detect(Variety, "^(NSIC GM)") ~ "NSIC GM CN38",
+                             str_detect(Variety, "^[Super 999]+") ~ "Super 999-HY",
+                             str_detect(Variety, "\\b(Supreme 5150)+") ~ "Supreme 5150-HY",
+                             str_detect(Variety, "B118G") ~ "B118G-Hybrid Yellow",
+                             str_detect(Variety, "T+[INIGinig]+[u]*[IiBb]") ~ "Tiniguib",
+                             str_detect(Variety, "G[LUTINOUSlutinous]") ~ "Glutinous White",
+                             str_detect(Variety, "Bio [Ss]eed") ~ "Bio Seed",
+                             str_detect(Variety, "(BioCorn 108)+") ~ "BioCorn 108-HY",
+         TRUE ~ Variety))
+
+insect_variety_edit$variety %>% unique()
+```
+
+```{r}
+hopper_df_ev <- 
+  insect_raw %>%
+  select(FarmID, `Collection Date`, Province, Municipality, `Crop Stage`, Treatment, `Corn Type`, Variety, contains("Corn Plant Hopper - Damage Rating"))
+
+# convert date format
+hopper_df_ev$collect_date <- 
+  as.Date(hopper_df_ev$`Collection Date`, "%B %d, %Y")
+
+hopper_dmg_ev <-
+  hopper_df_ev %>% 
+  mutate(Year = year(collect_date), Month = month(collect_date))
+
+# merged with monthly average weather parameters
+classification_dmg <- function(x) {ordered(x, levels = c("No", "Light", "Moderate", "Severe", "High"))}
+
+
+rank_rating <- c(1, 3, 5, 7, 9)
+names(rank_rating) <- c("No", "Light", "Moderate", "Severe", "High")
+ranked_class <- rank(rank_rating)
+factor(rank_rating, ordered=TRUE)
+
+
+getmode <- function(v) {
+  uniqv <- unique(v)
+  uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+
+hopper_joined_ev <-
+  hopper_dmg_ev %>% 
+  left_join(monthly_averages, by=c('Year', 'Month')) %>%
+  # mutate_at(c(9:28), as.factor) %>%
+  mutate(across(contains("Corn Plant Hopper - Damage Rating "), 
+         ~ case_when( . == 1 ~ "No",
+                      . == 3 ~ "Light",
+                      . == 5 ~ "Moderate",
+                      . == 7 ~ "Severe",
+                      . == 9 ~ "High"), 
+         .names="Class_Infest_{.col}")) %>%
+  mutate(across(contains("Class_Infest_Corn Plant Hopper - Damage Rating "), ~classification_dmg(.))) %>%
+  # get the modal observation rating
+   mutate(Mode_class_infest_hopper = getmode(c_across(contains("Class_Infest_Corn Plant Hopper - Damage Rating ")))) %>%
+  # create ranks column
+  mutate(Ranked_mode_classification = rank(Mode_class_infest_hopper))
+
+
+```
+
+```{r}
+rank_mean_fn <- function(x) {ordered(x, levels = c("25_Below", "25_to_27", "27_Above"))}
+
+hopper_ev_rank_df <-
+  hopper_joined_ev |>
+  mutate(rank_mean_temp = case_when(mean_temp > 27 ~ "27_Above", 
+                                    mean_temp < 25 ~ "25_Below",
+                                    TRUE ~ "25_to_27"),
+         rank_mean_temp = rank_mean_fn(rank_mean_temp))
+```
+
+```{r}
+cor.test(as.numeric(hopper_ev_rank_df$Mode_class_infest_hopper), as.numeric(hopper_ev_rank_df$rank_mean_temp), method="kendall")
+```
+```{r}
+faw_df_ev <- 
+  insect_raw %>%
+  select(FarmID, `Collection Date`, Province, Municipality, `Crop Stage`, Treatment, `Corn Type`, Variety, contains("Fall Armyworm - Damage Rating"))
+
+faw_df_ev$collect_date <- 
+  as.Date(faw_df_ev$`Collection Date`, "%B %d, %Y")
+
+faw_dmg_ev <-
+  faw_df_ev %>% 
+  mutate(Year = year(collect_date), Month = month(collect_date))
+
+faw_joined_ev <-
+  faw_dmg_ev %>% 
+  left_join(monthly_averages, by=c('Year', 'Month')) %>%
+  # mutate_at(c(9:28), as.factor) %>%
+  mutate(across(contains("Fall Armyworm - Damage Rating "), 
+         ~ case_when( . < 2 ~ "No",
+                      . < 4 ~ "Light",
+                      . < 6 ~ "Moderate",
+                      . < 8 ~ "Severe",
+                      . < 10 ~ "High"), 
+         .names="Class_Infest_{.col}")) %>%
+  mutate(across(contains("Class_Infest_Fall Armyworm - Damage Rating "), ~classification_dmg(.))) %>%
+  # get the modal observation rating
+   mutate(ModeFAW_class_infest = getmode(c_across(contains("Class_Infest_Fall Armyworm - Damage Rating ")))) %>%
+  # create ranks column
+  mutate(faw_mode_classification = rank(ModeFAW_class_infest))
+
+
+rank_mean_fn <- function(x) {ordered(x, levels = c("25_Below", "25_to_27", "27_Above"))}
+
+faw_ev_rank_df <-
+  faw_joined_ev |>
+  mutate(rank_mean_temp = case_when(mean_temp > 27 ~ "27_Above", 
+                                    mean_temp < 25 ~ "25_Below",
+                                    TRUE ~ "25_to_27"),
+         rank_mean_temp = rank_mean_fn(rank_mean_temp))
+```
+
+```{r}
+cor.test(as.numeric(faw_ev_rank_df$ModeFAW_class_infest), as.numeric(faw_ev_rank_df$rank_mean_temp), method="kendall")
+```
+
+```{r}
+borer_df_ev <- 
+  insect_raw %>%
+  select(FarmID, `Collection Date`, Province, Municipality, `Crop Stage`, Treatment, `Corn Type`, Variety, contains("Corn Borer - Damage Rating "))
+
+borer_df_ev$collect_date <- 
+  as.Date(borer_df_ev$`Collection Date`, "%B %d, %Y")
+
+borer_dmg_ev <-
+  borer_df_ev %>% 
+  mutate(Year = year(collect_date), Month = month(collect_date))
+
+borer_joined_ev <-
+  borer_dmg_ev %>% 
+  left_join(monthly_averages, by=c('Year', 'Month')) %>%
+  # mutate_at(c(9:28), as.factor) %>%
+  mutate(across(contains("Corn Borer - Damage Rating "), 
+         ~ case_when( . < 2 ~ "No",
+                      . < 4 ~ "Light",
+                      . < 6 ~ "Moderate",
+                      . < 8 ~ "Severe",
+                      . < 10 ~ "High"), 
+         .names="Class_Infest_{.col}")) %>%
+  mutate(across(contains("Class_Infest_Corn Borer - Damage Rating "), ~classification_dmg(.))) %>%
+  # get the modal observation rating
+   mutate(Modeborer_class_infest = getmode(c_across(contains("Class_Infest_Corn Borer - Damage Rating ")))) %>%
+  # create ranks column
+  mutate(borer_mode_classification = rank(Modeborer_class_infest))
+
+
+rank_mean_fn <- function(x) {ordered(x, levels = c("25_Below", "25_to_27", "27_Above"))}
+
+borer_ev_rank_df <-
+  borer_joined_ev |>
+  mutate(rank_mean_temp = case_when(mean_temp > 27 ~ "27_Above", 
+                                    mean_temp < 25 ~ "25_Below",
+                                    TRUE ~ "25_to_27"),
+         rank_mean_temp = rank_mean_fn(rank_mean_temp))
+```
+
+```{r}
+cor.test(as.numeric(borer_ev_rank_df$Modeborer_class_infest), as.numeric(borer_ev_rank_df$rank_mean_temp), method="kendall")
+```
+```{r}
+semilooper_df_ev <- 
+  insect_raw %>%
+  select(FarmID, `Collection Date`, Province, Municipality, `Crop Stage`, Treatment, `Corn Type`, Variety, contains("Semi-looper - Damage Rating "))
+
+semilooper_df_ev$collect_date <- 
+  as.Date(semilooper_df_ev$`Collection Date`, "%B %d, %Y")
+
+semilooper_dmg_ev <-
+  semilooper_df_ev %>% 
+  mutate(Year = year(collect_date), Month = month(collect_date))
+
+semilooper_joined_ev <-
+  semilooper_dmg_ev %>% 
+  left_join(monthly_averages, by=c('Year', 'Month')) %>%
+  # mutate_at(c(9:28), as.factor) %>%
+  mutate(across(contains("Semi-looper - Damage Rating "), 
+         ~ case_when( . < 2 ~ "No",
+                      . < 4 ~ "Light",
+                      . < 6 ~ "Moderate",
+                      . < 8 ~ "Severe",
+                      . < 10 ~ "High"), 
+         .names="Class_Infest_{.col}")) %>%
+  mutate(across(contains("Class_Infest_Semi-looper - Damage Rating "), ~classification_dmg(.))) %>%
+  # get the modal observation rating
+   mutate(Modesemilooper_class_infest = getmode(c_across(contains("Class_Infest_Semi-looper - Damage Rating ")))) %>%
+  # create ranks column
+  mutate(semilooper_mode_classification = rank(Modesemilooper_class_infest))
+
+
+rank_mean_fn <- function(x) {ordered(x, levels = c("25_Below", "25_to_27", "27_Above"))}
+
+semilooper_ev_rank_df <-
+  semilooper_joined_ev |>
+  mutate(rank_mean_temp = case_when(mean_temp > 27 ~ "27_Above", 
+                                    mean_temp < 25 ~ "25_Below",
+                                    TRUE ~ "25_to_27"),
+         rank_mean_temp = rank_mean_fn(rank_mean_temp))
+```
+
+```{r}
+cor.test(as.numeric(semilooper_ev_rank_df$Modesemilooper_class_infest), as.numeric(semilooper_ev_rank_df$rank_mean_temp), method="kendall")
+```
+```{r}
+earworm_df_ev <- 
+  insect_raw %>%
+  select(FarmID, `Collection Date`, Province, Municipality, `Crop Stage`, Treatment, `Corn Type`, Variety, contains("Corn Earworm - Damage Rating "))
+
+earworm_df_ev$collect_date <- 
+  as.Date(earworm_df_ev$`Collection Date`, "%B %d, %Y")
+
+earworm_dmg_ev <-
+  earworm_df_ev %>% 
+  mutate(Year = year(collect_date), Month = month(collect_date))
+
+earworm_joined_ev <-
+  earworm_dmg_ev %>% 
+  left_join(monthly_averages, by=c('Year', 'Month')) %>%
+  # mutate_at(c(9:28), as.factor) %>%
+  mutate(across(contains("Corn Earworm - Damage Rating "), 
+         ~ case_when( . < 2 ~ "No",
+                      . < 4 ~ "Light",
+                      . < 6 ~ "Moderate",
+                      . < 8 ~ "Severe",
+                      . < 10 ~ "High"), 
+         .names="Class_Infest_{.col}")) %>%
+  mutate(across(contains("Class_Infest_Corn Earworm - Damage Rating "), ~classification_dmg(.))) %>%
+  # get the modal observation rating
+   mutate(Modeearworm_class_infest = getmode(c_across(contains("Class_Infest_Corn Earworm - Damage Rating ")))) %>%
+  # create ranks column
+  mutate(earworm_mode_classification = rank(Modeearworm_class_infest))
+
+
+rank_mean_fn <- function(x) {ordered(x, levels = c("25_Below", "25_to_27", "27_Above"))}
+
+earworm_ev_rank_df <-
+  earworm_joined_ev |>
+  mutate(rank_mean_temp = case_when(mean_temp > 27 ~ "27_Above", 
+                                    mean_temp < 25 ~ "25_Below",
+                                    TRUE ~ "25_to_27"),
+         rank_mean_temp = rank_mean_fn(rank_mean_temp))
+```
+
+```{r}
+cor.test(as.numeric(earworm_ev_rank_df$Modeearworm_class_infest), as.numeric(earworm_ev_rank_df$rank_mean_temp), method="kendall")
+```
+
+
+```{r}
+cutworm_df_ev <- 
+  insect_raw %>%
+  select(FarmID, `Collection Date`, Province, Municipality, `Crop Stage`, Treatment, `Corn Type`, Variety, contains("Cutworm - Damage Rating "))
+
+cutworm_df_ev$collect_date <- 
+  as.Date(cutworm_df_ev$`Collection Date`, "%B %d, %Y")
+
+cutworm_dmg_ev <-
+  cutworm_df_ev %>% 
+  mutate(Year = year(collect_date), Month = month(collect_date))
+
+cutworm_joined_ev <-
+  cutworm_dmg_ev %>% 
+  left_join(monthly_averages, by=c('Year', 'Month')) %>%
+  # mutate_at(c(9:28), as.factor) %>%
+  mutate(across(contains("Cutworm - Damage Rating "), 
+         ~ case_when( . < 2 ~ "No",
+                      . < 4 ~ "Light",
+                      . < 6 ~ "Moderate",
+                      . < 8 ~ "Severe",
+                      . < 10 ~ "High"), 
+         .names="Class_Infest_{.col}")) %>%
+  mutate(across(contains("Class_Infest_Cutworm - Damage Rating "), ~classification_dmg(.))) %>%
+  # get the modal observation rating
+   mutate(Modecutworm_class_infest = getmode(c_across(contains("Class_Infest_Cutworm - Damage Rating ")))) %>%
+  # create ranks column
+  mutate(cutworm_mode_classification = rank(Modecutworm_class_infest))
+
+
+rank_mean_fn <- function(x) {ordered(x, levels = c("25_Below", "25_to_27", "27_Above"))}
+
+cutworm_ev_rank_df <-
+  cutworm_joined_ev |>
+  mutate(rank_mean_temp = case_when(mean_temp > 27 ~ "27_Above", 
+                                    mean_temp < 25 ~ "25_Below",
+                                    TRUE ~ "25_to_27"),
+         rank_mean_temp = rank_mean_fn(rank_mean_temp))
+```
+
+```{r}
+cor.test(as.numeric(cutworm_ev_rank_df$Modecutworm_class_infest), as.numeric(cutworm_ev_rank_df$rank_mean_temp), method="kendall")
+```
