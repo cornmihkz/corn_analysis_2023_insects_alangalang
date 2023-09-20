@@ -13,7 +13,7 @@ library("tidyverse")
 library("ggpubr")
 library("broom")
 library("multcompView")
-
+library("car")
 
 set.seed(123)
 insect_raw$Variety %>% unique()
@@ -117,27 +117,6 @@ summary_borer <-
 
 View(summary_borer)
 
-summary_borer %>%
-  ggplot(aes(percent_incidence_borer)) +
-  geom_density()
-
-summary_borer %>%
-  ggplot(aes(percent_incidence_borer)) +
-  geom_histogram()
-
-summary_borer %>%
-  ggplot(aes(sample=percent_incidence_borer)) +
-  stat_qq() +
-  stat_qq_line()
-
-summary_borer %>%
-  ggplot(aes(`Corn Type`, percent_incidence_borer)) +
-  geom_boxplot()
-
-summary_borer %>%
-  ggplot(aes(Treatment, percent_incidence_borer)) +
-  geom_boxplot()
-
 summary_borer$order_treat <- ordered(summary_borer$Treatment,
                                      levels = c("BRFR", "RFR", "ARFR"),
                                      labels = c("B", "R", "A"))
@@ -152,12 +131,6 @@ library("nortest")
 library("moments")
 library("stats")
 library("MASS")
-library("car")
-library("gmodels")
-library("DescTools")
-library("ggplot2")
-library("qqplotr")
-
 
 # Kolmogorov Smirnov test for normality samples > 50
 ks_test_borer <- ks.test(summary_borer$percent_incidence_borer, 'pnorm')
@@ -303,7 +276,7 @@ borer_joined_ev %>%
   geom_point(color = "gray", show.legend = FALSE) +
   geom_smooth(formula = "y~x", method="lm", se=FALSE, size = 1.5) +
   labs(x = "Monthly average wind speed (km/h)", y = "Incidence Borer") +
-  annotate("label", x = 4, y = 8,  
+  annotate("label", x = 7, y = 8,  
            label = wind_borer_eqn,
            parse = TRUE, color = "red", size = 5) +
   theme_classic()
@@ -314,7 +287,7 @@ borer_joined_ev %>%
   geom_point(color = "gray", show.legend = FALSE) +
   geom_smooth(formula = "y~x", method="lm", se=FALSE, size = 1.7) +
   labs(x = "Monthly average humidity (%)", y = "Incidence Borer") +
-  annotate("label", x = 50, y = 8,  
+  annotate("label", x = 60, y = 8,  
            label = humid_borer_eqn,
            parse = TRUE, color = "red", size = 5) +
   theme_classic()
@@ -324,7 +297,7 @@ borer_joined_ev %>%
   geom_point(color = "gray", show.legend = FALSE) +
   geom_smooth(formula = "y~x", method="lm", se=FALSE, size = 1.5) +
   labs(x = "Monthly average rainfall (mm)", y = "Incidence Borer") +
-  annotate("label", x = 0.5, y = 10,  
+  annotate("label", x = 0.4, y = 10,  
            label = rain_borer_eqn,
            parse = TRUE, color = "red", size = 5) +
   theme_classic()
@@ -466,8 +439,6 @@ library("nortest")
 library("moments")
 library("stats")
 library("MASS")
-library("car")
-library("multcompView")
 
 # Kolmogorov Smirnov test for normality samples > 50
 ks_test_semilooper <- ks.test(summary_semilooper$percent_incidence_semilooper, 'pnorm')
@@ -599,7 +570,7 @@ semilooper_joined_ev %>%
   geom_point(color = "gray", show.legend = FALSE) +
   geom_smooth(formula = "y~x", method="lm", se=FALSE, size = 1.5) +
   labs(x = "Monthly average wind speed (km/h)", y = "Incidence Semilooper") +
-  annotate("label", x = 4, y = 8,  
+  annotate("label", x = 7, y = 8,  
            label = wind_semilooper_eqn,
            parse = TRUE, color = "red", size = 5) +
   theme_classic()
@@ -610,7 +581,7 @@ semilooper_joined_ev %>%
   geom_point(color = "gray", show.legend = FALSE) +
   geom_smooth(formula = "y~x", method="lm", se=FALSE, size = 1.7) +
   labs(x = "Monthly average humidity (%)", y = "Incidence Semilooper") +
-  annotate("label", x = 50, y = 8,  
+  annotate("label", x = 60, y = 8,  
            label = humid_semilooper_eqn,
            parse = TRUE, color = "red", size = 5) +
   theme_classic()
@@ -755,8 +726,7 @@ library("nortest")
 library("moments")
 library("stats")
 library("MASS")
-library("car")
-library("multcompView")
+
 
 ggqqplot(summary_earworm$sum_incidence_earworm)
 
@@ -891,7 +861,7 @@ earworm_joined_ev %>%
   geom_point(color = "gray", show.legend = FALSE) +
   geom_smooth(formula = "y~x", method="lm", se=FALSE, size = 1.5) +
   labs(x = "Monthly average temperature (C)", y = "Incidence Earworm") +
-  annotate("label", x = 27, y = 13,  
+  annotate("label", x = 28.5, y = 13,  
            label = temp_earworm_eqn,
            parse = TRUE, color = "red", size = 5) +
   theme_classic()
@@ -902,7 +872,7 @@ earworm_joined_ev %>%
   geom_point(color = "gray", show.legend = FALSE) +
   geom_smooth(formula = "y~x", method="lm", se=FALSE, size = 1.5) +
   labs(x = "Monthly average wind speed (km/h)", y = "Incidence Earworm") +
-  annotate("label", x = 4, y = 13,  
+  annotate("label", x = 7, y = 13,  
            label = wind_earworm_eqn,
            parse = TRUE, color = "red", size = 5) +
   theme_classic()
@@ -913,7 +883,7 @@ earworm_joined_ev %>%
   geom_point(color = "gray", show.legend = FALSE) +
   geom_smooth(formula = "y~x", method="lm", se=FALSE, size = 1.7) +
   labs(x = "Monthly average humidity (%)", y = "Incidence Earworm") +
-  annotate("label", x = 50, y = 13,  
+  annotate("label", x = 60, y = 13,  
            label = humid_earworm_eqn,
            parse = TRUE, color = "red", size = 5) +
   theme_classic()
@@ -1076,7 +1046,6 @@ library("nortest")
 library("moments")
 library("stats")
 library("MASS")
-library("car")
 
 ggqqplot(summary_hopper$sum_incidence_hopper)
 
@@ -1168,7 +1137,7 @@ lm_temp_hopper  <- lm(incidence_hopper ~ mean_temp, data = hopper_joined_ev)
 
 
 temp_hopper_eqn <- sprintf(
-    "italic(y) == %.3g + %.3g * italic(x) * ',' ~~ r ~ '=' ~ %.2g",
+    "italic(y) == %.3g %.3g * italic(x) * ',' ~~ r ~ '=' ~ %.2g",
     coef(lm_temp_hopper)[1],
     coef(lm_temp_hopper)[2],
     round(cor_hopper_temp_incidence, 3)
@@ -1203,7 +1172,7 @@ hopper_joined_ev %>%
   geom_point(color = "gray", show.legend = FALSE) +
   geom_smooth(formula = "y~x", method="lm", se=FALSE, size = 1.5) +
   labs(x = "Monthly average temperature (C)", y = "Incidence Hopper") +
-  annotate("label", x = 27, y = 8,  
+  annotate("label", x = 28, y = 8,  
            label = temp_hopper_eqn,
            parse = TRUE, color = "red", size = 5) +
   theme_classic()
@@ -1214,7 +1183,7 @@ hopper_joined_ev %>%
   geom_point(color = "gray", show.legend = FALSE) +
   geom_smooth(formula = "y~x", method="lm", se=FALSE, size = 1.5) +
   labs(x = "Monthly average wind speed (km/h)", y = "Incidence Hopper") +
-  annotate("label", x = 4, y = 8,  
+  annotate("label", x = 8, y = 8,  
            label = wind_hopper_eqn,
            parse = TRUE, color = "red", size = 5) +
   theme_classic()
@@ -1225,7 +1194,7 @@ hopper_joined_ev %>%
   geom_point(color = "gray", show.legend = FALSE) +
   geom_smooth(formula = "y~x", method="lm", se=FALSE, size = 1.7) +
   labs(x = "Monthly average humidity (%)", y = "Incidence Hopper") +
-  annotate("label", x = 50, y = 8,  
+  annotate("label", x = 60, y = 11,  
            label = humid_hopper_eqn,
            parse = TRUE, color = "red", size = 5) +
   theme_classic()
@@ -1375,7 +1344,6 @@ library("nortest")
 library("moments")
 library("stats")
 library("MASS")
-library("car")
 
 ggqqplot(summary_cutworm$sum_incidence_cutworm)
 
@@ -1502,7 +1470,7 @@ cutworm_joined_ev %>%
   geom_point(color = "gray", show.legend = FALSE) +
   geom_smooth(formula = "y~x", method="lm", se=FALSE, size = 1.5) +
   labs(x = "Monthly average temperature (C)", y = "Incidence Cutworm") +
-  annotate("label", x = 27, y = 8,  
+  annotate("label", x = 28, y = 8,  
            label = temp_cutworm_eqn,
            parse = TRUE, color = "red", size = 5) +
   theme_classic()
@@ -1513,7 +1481,7 @@ cutworm_joined_ev %>%
   geom_point(color = "gray", show.legend = FALSE) +
   geom_smooth(formula = "y~x", method="lm", se=FALSE, size = 1.5) +
   labs(x = "Monthly average wind speed (km/h)", y = "Incidence Cutworm") +
-  annotate("label", x = 4, y = 8,  
+  annotate("label", x = 8, y = 8,  
            label = wind_cutworm_eqn,
            parse = TRUE, color = "red", size = 5) +
   theme_classic()
@@ -1524,7 +1492,7 @@ cutworm_joined_ev %>%
   geom_point(color = "gray", show.legend = FALSE) +
   geom_smooth(formula = "y~x", method="lm", se=FALSE, size = 1.7) +
   labs(x = "Monthly average humidity (%)", y = "Incidence Cutworm") +
-  annotate("label", x = 50, y = 8,  
+  annotate("label", x = 60, y = 8,  
            label = humid_cutworm_eqn,
            parse = TRUE, color = "red", size = 5) +
   theme_classic()
@@ -1661,7 +1629,6 @@ library("nortest")
 library("moments")
 library("stats")
 library("MASS")
-library("car")
 
 ggqqplot(summary_armyworm$sum_incidence_armyworm)
 
@@ -1791,7 +1758,7 @@ armyworm_joined_ev %>%
   geom_point(color = "gray", show.legend = FALSE) +
   geom_smooth(formula = "y~x", method="lm", se=FALSE, size = 1.5) +
   labs(x = "Monthly average temperature (C)", y = "Incidence Armyworm") +
-  annotate("label", x = 27, y = 12,  
+  annotate("label", x = 28, y = 12,  
            label = temp_armyworm_eqn,
            parse = TRUE, color = "red", size = 5) +
   theme_classic()
@@ -1802,7 +1769,7 @@ armyworm_joined_ev %>%
   geom_point(color = "gray", show.legend = FALSE) +
   geom_smooth(formula = "y~x", method="lm", se=FALSE, size = 1.5) +
   labs(x = "Monthly average wind speed (km/h)", y = "Incidence Armyworm") +
-  annotate("label", x = 5, y = 15,  
+  annotate("label", x = 7.5, y = 12,  
            label = wind_armyworm_eqn,
            parse = TRUE, color = "red", size = 5) +
   theme_classic()
@@ -1813,7 +1780,7 @@ armyworm_joined_ev %>%
   geom_point(color = "gray", show.legend = FALSE) +
   geom_smooth(formula = "y~x", method="lm", se=FALSE, size = 1.7) +
   labs(x = "Monthly average humidity (%)", y = "Incidence Armyworm") +
-  annotate("label", x = 50, y = 12,  
+  annotate("label", x = 60, y = 12,  
            label = humid_armyworm_eqn,
            parse = TRUE, color = "red", size = 5) +
   theme_classic()
@@ -1944,8 +1911,6 @@ library("nortest")
 library("moments")
 library("stats")
 library("MASS")
-library("car")
-library("cellWise")
 
 ggqqplot(summary_aphids$sum_incidence_aphids)
 
@@ -2061,7 +2026,7 @@ wind_aphids_eqn <- sprintf(
 
 
 humid_aphids_eqn <- sprintf(
-    "italic(y) == %.3g ++ %.3g * italic(x) * ',' ~~ r ~ '=' ~ %.2g",
+    "italic(y) == %.3g + %.3g * italic(x) * ',' ~~ r ~ '=' ~ %.2g",
     coef(lm_humid_aphids)[1],
     coef(lm_humid_aphids)[2],
     round(cor_aphids_humid_incidence, 3)
@@ -2073,7 +2038,7 @@ aphids_joined_ev %>%
   geom_point(color = "gray", show.legend = FALSE) +
   geom_smooth(formula = "y~x", method="lm", se=FALSE, size = 1.5) +
   labs(x = "Monthly average temperature (C)", y = "Incidence Aphids") +
-  annotate("label", x = 27, y = 12,  
+  annotate("label", x = 27.5, y = 12,  
            label = temp_aphids_eqn,
            parse = TRUE, color = "red", size = 5) +
   theme_classic()
@@ -2084,7 +2049,7 @@ aphids_joined_ev %>%
   geom_point(color = "gray", show.legend = FALSE) +
   geom_smooth(formula = "y~x", method="lm", se=FALSE, size = 1.5) +
   labs(x = "Monthly average wind speed (km/h)", y = "Incidence Aphids") +
-  annotate("label", x = 5, y = 15,  
+  annotate("label", x = 7.5, y = 8,  
            label = wind_aphids_eqn,
            parse = TRUE, color = "red", size = 5) +
   theme_classic()
@@ -2095,7 +2060,7 @@ aphids_joined_ev %>%
   geom_point(color = "gray", show.legend = FALSE) +
   geom_smooth(formula = "y~x", method="lm", se=FALSE, size = 1.7) +
   labs(x = "Monthly average humidity (%)", y = "Incidence Aphids") +
-  annotate("label", x = 50, y = 12,  
+  annotate("label", x = 60, y = 8,  
            label = humid_aphids_eqn,
            parse = TRUE, color = "red", size = 5) +
   theme_classic()
@@ -2105,7 +2070,7 @@ aphids_joined_ev %>%
   geom_point(color = "gray", show.legend = FALSE) +
   geom_smooth(formula = "y~x", method="lm", se=FALSE, size = 1.5) +
   labs(x = "Monthly average rainfall (mm)", y = "Incidence Aphids") +
-  annotate("label", x = 0.5, y = 12,  
+  annotate("label", x = 0.5, y = 11,  
            label = rain_aphids_eqn,
            parse = TRUE, color = "red", size = 5) +
   theme_classic()
@@ -2125,6 +2090,7 @@ summary_aphids %>%
   geom_boxplot() +
   geom_text(data = summary_aphids_corntype_bp, aes(label = treatment_cld,
                 y = w + sd$ymax), vjust = -0.5, color="red", size = 5) +
+  geom_text(data = summary_aphids_corntype_bp, aes(label = round(w, 2), y = sd$y), vjust = 0.8, alpha = 0.75, color = "darkblue") +
   labs(x = "Corn Type (GM or Non-GM)", 
        y = "Percent Incidence Aphids") +
   theme_classic()
@@ -2144,14 +2110,15 @@ summary_aphids %>%
   geom_boxplot() +
   geom_text(data = summary_aphids_fert_bp, aes(label = treatment_cld,
                 y = w + sd$ymax), vjust = -0.5, color="red", size = 5) +
+  geom_text(data = summary_aphids_fert_bp, aes(label = round(w, 2), y = sd$y), vjust = 0.8, alpha = 0.75, color = "darkblue") +
   labs(x = "Fertilizer Treatment Rate", 
        y = "Percent Incidence Aphids") + 
   theme_classic()
 
-detach("package:MASS", unload = TRUE)
-detach("packages:stats", unload = TRUE)
-```
 
+detach("package:MASS", unload = TRUE)
+detach("package:stats", unload = TRUE)
+```
 
 ```Fall armyworm has different rating scale (according to dashboard)```
 ```{r}
@@ -2226,7 +2193,6 @@ summary_faw$factor_corn <- factor(labels=c("N", "G"), levels=c("Non - GM Corn", 
 library("nortest")
 library("moments")
 library("stats")
-library("car")
 library("MASS")
 
 ggqqplot(summary_faw$percent_incidence_faw)
@@ -2328,7 +2294,7 @@ lm_temp_faw  <- lm(incidence_faw ~ mean_temp, data = faw_joined_ev)
 
 
 temp_faw_eqn <- sprintf(
-    "italic(y) == %.3g %.3g * italic(x) * ',' ~~ r ~ '=' ~ %.2g",
+    "italic(y) == %.3g + %.3g * italic(x) * ',' ~~ r ~ '=' ~ %.2g",
     coef(lm_temp_faw)[1],
     coef(lm_temp_faw)[2],
     round(cor_faw_temp_incidence, 3)
@@ -2363,7 +2329,7 @@ faw_joined_ev %>%
   geom_point(color = "gray", show.legend = FALSE) +
   geom_smooth(formula = "y~x", method="lm", se=FALSE, size = 1.5) +
   labs(x = "Monthly average temperature (C)", y = "Incidence FAW") +
-  annotate("label", x = 27, y = 25,  
+  annotate("label", x = 27.5, y = 25,  
            label = temp_faw_eqn,
            parse = TRUE, color = "red", size = 5) +
   theme_classic()
@@ -2374,7 +2340,7 @@ faw_joined_ev %>%
   geom_point(color = "gray", show.legend = FALSE) +
   geom_smooth(formula = "y~x", method="lm", se=FALSE, size = 1.5) +
   labs(x = "Monthly average wind speed (km/h)", y = "Incidence FAW") +
-  annotate("label", x = 4, y = 25,  
+  annotate("label", x = 7.5, y = 25,  
            label = wind_faw_eqn,
            parse = TRUE, color = "red", size = 5) +
   theme_classic()
@@ -2385,7 +2351,7 @@ faw_joined_ev %>%
   geom_point(color = "gray", show.legend = FALSE) +
   geom_smooth(formula = "y~x", method="lm", se=FALSE, size = 1.7) +
   labs(x = "Monthly average humidity (%)", y = "Incidence FAW") +
-  annotate("label", x = 50, y = 35,  
+  annotate("label", x = 60, y = 35,  
            label = humid_faw_eqn,
            parse = TRUE, color = "red", size = 5) +
   theme_classic()
@@ -2395,7 +2361,7 @@ faw_joined_ev %>%
   geom_point(color = "gray", show.legend = FALSE) +
   geom_smooth(formula = "y~x", method="lm", se=FALSE, size = 1.5) +
   labs(x = "Monthly average rainfall (mm)", y = "Incidence FAW") +
-  annotate("label", x = 0.5, y = 25,  
+  annotate("label", x = 0.4, y = 25,  
            label = rain_faw_eqn,
            parse = TRUE, color = "red", size = 5) +
   theme_classic()
@@ -2440,59 +2406,203 @@ summary_faw %>%
        y = "Percent Incidence FAW") + 
   theme_classic()
 
+detach("package:MASS", unload = TRUE)
 detach("package:stats", unload = TRUE)
 ```
 
 
 ``` Correlation: Incidence vs Weather Parameters```
 ```{r}
+# faw, hopper, cutworm, armyworm, aphids, borer, earworm, semilooper
 
-# faw
-print(paste(round(correlation::cor_to_p(cor_faw_wind_incidence, 2528)$p, 5), "correlation p-value of wind speed and FAW incidence."))
-print(paste(round(correlation::cor_to_p(cor_faw_temp_incidence, 2528)$p, 5), "correlation p-value of temperature and FAW incidence."))
-print(paste(round(correlation::cor_to_p(cor_faw_humid_incidence, 2528)$p, 5), "correlation p-value of humidity and FAW incidence."))
-print(paste(round(correlation::cor_to_p(cor_faw_rain_incidence, 2528)$p, 5), "correlation p-value of rainfall and FAW incidence."))
+# earworm
+earworm_cor_test_wind <- cor_test(earworm_ev, "mean_wind", "incidence_earworm")
+earworm_cor_test_temp <- cor_test(earworm_ev, "mean_temp", "incidence_earworm")
+earworm_cor_test_humid <- cor_test(earworm_ev, "mean_humid", "incidence_earworm")
+earworm_cor_test_rain <- cor_test(earworm_ev, "mean_rain", "incidence_earworm")
 
-# aphids
-print(paste(round(correlation::cor_to_p(cor_aphids_wind_incidence, 2528)$p, 5), "correlation p-value of wind speed and aphids incidence."))
-print(paste(round(correlation::cor_to_p(cor_aphids_temp_incidence, 2528)$p, 5), "correlation p-value of temperature and aphids incidence."))
-print(paste(round(correlation::cor_to_p(cor_aphids_humid_incidence, 2528)$p, 5), "correlation p-value of humidity and aphids incidence."))
-print(paste(round(correlation::cor_to_p(cor_aphids_rain_incidence, 2528)$p, 5), "correlation p-value of rainfall and aphids incidence."))
+corr_earworm_df <- data.frame(
+  weather_parameter = c(earworm_cor_test_wind$Parameter1, earworm_cor_test_temp$Parameter1, earworm_cor_test_humid$Parameter1, earworm_cor_test_rain$Parameter1),
+  incidence = c(earworm_cor_test_wind$Parameter2, earworm_cor_test_temp$Parameter2, earworm_cor_test_humid$Parameter2, earworm_cor_test_rain$Parameter2),
+  r_coef = c(earworm_cor_test_wind$r, earworm_cor_test_temp$r, earworm_cor_test_humid$r, earworm_cor_test_rain$r),
+  p_val  = c(earworm_cor_test_wind$p, earworm_cor_test_temp$p, earworm_cor_test_humid$p, earworm_cor_test_rain$p)
+) %>% mutate(r_coef = round(r_coef, 3),
+             p_val = round(p_val, 4))
+
 
 
 # borer
-print(paste(round(cor_borer_wind_incidence, 3), "correlation value of wind speed and Borer incidence."))
-print(paste(round(cor_borer_temp_incidence, 3), "correlation value of temperature and Borer incidence."))
-print(paste(round(cor_borer_humid_incidence, 3), "correlation value of humidity and Borer incidence."))
-print(paste(round(cor_borer_rain_incidence, 3), "correlation value of rainfall and Borer incidence."))
+borer_cor_test_wind <- cor_test(borer_ev, "mean_wind", "incidence_borer")
+borer_cor_test_temp <- cor_test(borer_ev, "mean_temp", "incidence_borer")
+borer_cor_test_humid <- cor_test(borer_ev, "mean_humid", "incidence_borer")
+borer_cor_test_rain <- cor_test(borer_ev, "mean_rain", "incidence_borer")
+
+corr_borer_df <- data.frame(
+  weather_parameter = c(borer_cor_test_wind$Parameter1, borer_cor_test_temp$Parameter1, borer_cor_test_humid$Parameter1, borer_cor_test_rain$Parameter1),
+  incidence = c(borer_cor_test_wind$Parameter2, borer_cor_test_temp$Parameter2, borer_cor_test_humid$Parameter2, borer_cor_test_rain$Parameter2),
+  r_coef = c(borer_cor_test_wind$r, borer_cor_test_temp$r, borer_cor_test_humid$r, borer_cor_test_rain$r),
+  p_val  = c(borer_cor_test_wind$p, borer_cor_test_temp$p, borer_cor_test_humid$p, borer_cor_test_rain$p)
+) %>% mutate(r_coef = round(r_coef, 3),
+             p_val = round(p_val, 4))
+
+
+# semilooper
+semilooper_cor_test_wind <- cor_test(semilooper_ev, "mean_wind", "incidence_semilooper")
+semilooper_cor_test_temp <- cor_test(semilooper_ev, "mean_temp", "incidence_semilooper")
+semilooper_cor_test_humid <- cor_test(semilooper_ev, "mean_humid", "incidence_semilooper")
+semilooper_cor_test_rain <- cor_test(semilooper_ev, "mean_rain", "incidence_semilooper")
+
+corr_semilooper_df <- data.frame(
+  weather_parameter = c(semilooper_cor_test_wind$Parameter1, semilooper_cor_test_temp$Parameter1, semilooper_cor_test_humid$Parameter1, semilooper_cor_test_rain$Parameter1),
+  incidence = c(semilooper_cor_test_wind$Parameter2, semilooper_cor_test_temp$Parameter2, semilooper_cor_test_humid$Parameter2, semilooper_cor_test_rain$Parameter2),
+  r_coef = c(semilooper_cor_test_wind$r, semilooper_cor_test_temp$r, semilooper_cor_test_humid$r, semilooper_cor_test_rain$r),
+  p_val  = c(semilooper_cor_test_wind$p, semilooper_cor_test_temp$p, semilooper_cor_test_humid$p, semilooper_cor_test_rain$p)
+) %>% mutate(r_coef = round(r_coef, 3),
+             p_val = round(p_val, 4))
+
+
+# cutworm
+cutworm_cor_test_wind <- cor_test(cutworm_ev, "mean_wind", "incidence_cutworm")
+cutworm_cor_test_temp <- cor_test(cutworm_ev, "mean_temp", "incidence_cutworm")
+cutworm_cor_test_humid <- cor_test(cutworm_ev, "mean_humid", "incidence_cutworm")
+cutworm_cor_test_rain <- cor_test(cutworm_ev, "mean_rain", "incidence_cutworm")
+
+corr_cutworm_df <- data.frame(
+  weather_parameter = c(cutworm_cor_test_wind$Parameter1, cutworm_cor_test_temp$Parameter1, cutworm_cor_test_humid$Parameter1, cutworm_cor_test_rain$Parameter1),
+  incidence = c(cutworm_cor_test_wind$Parameter2, cutworm_cor_test_temp$Parameter2, cutworm_cor_test_humid$Parameter2, cutworm_cor_test_rain$Parameter2),
+  r_coef = c(cutworm_cor_test_wind$r, cutworm_cor_test_temp$r, cutworm_cor_test_humid$r, cutworm_cor_test_rain$r),
+  p_val  = c(cutworm_cor_test_wind$p, cutworm_cor_test_temp$p, cutworm_cor_test_humid$p, cutworm_cor_test_rain$p)
+) %>% mutate(r_coef = round(r_coef, 3),
+             p_val = round(p_val, 4))
+
+
+
+# hopper
+hopper_cor_test_wind <- cor_test(hopper_ev, "mean_wind", "incidence_hopper")
+hopper_cor_test_temp <- cor_test(hopper_ev, "mean_temp", "incidence_hopper")
+hopper_cor_test_humid <- cor_test(hopper_ev, "mean_humid", "incidence_hopper")
+hopper_cor_test_rain <- cor_test(hopper_ev, "mean_rain", "incidence_hopper")
+
+corr_hopper_df <- data.frame(
+  weather_parameter = c(hopper_cor_test_wind$Parameter1, hopper_cor_test_temp$Parameter1, hopper_cor_test_humid$Parameter1, hopper_cor_test_rain$Parameter1),
+  incidence = c(hopper_cor_test_wind$Parameter2, hopper_cor_test_temp$Parameter2, hopper_cor_test_humid$Parameter2, hopper_cor_test_rain$Parameter2),
+  r_coef = c(hopper_cor_test_wind$r, hopper_cor_test_temp$r, hopper_cor_test_humid$r, hopper_cor_test_rain$r),
+  p_val  = c(hopper_cor_test_wind$p, hopper_cor_test_temp$p, hopper_cor_test_humid$p, hopper_cor_test_rain$p)
+) %>% mutate(r_coef = round(r_coef, 3),
+             p_val = round(p_val, 4))
+
+
+
+
+# aphids
+aphids_cor_test_wind <- cor_test(aphids_ev, "mean_wind", "incidence_aphids")
+aphids_cor_test_temp <- cor_test(aphids_ev, "mean_temp", "incidence_aphids")
+aphids_cor_test_humid <- cor_test(aphids_ev, "mean_humid", "incidence_aphids")
+aphids_cor_test_rain <- cor_test(aphids_ev, "mean_rain", "incidence_aphids")
+
+corr_aphids_df <- data.frame(
+  weather_parameter = c(aphids_cor_test_wind$Parameter1, aphids_cor_test_temp$Parameter1, aphids_cor_test_humid$Parameter1, aphids_cor_test_rain$Parameter1),
+  incidence = c(aphids_cor_test_wind$Parameter2, aphids_cor_test_temp$Parameter2, aphids_cor_test_humid$Parameter2, aphids_cor_test_rain$Parameter2),
+  r_coef = c(aphids_cor_test_wind$r, aphids_cor_test_temp$r, aphids_cor_test_humid$r, aphids_cor_test_rain$r),
+  p_val  = c(aphids_cor_test_wind$p, aphids_cor_test_temp$p, aphids_cor_test_humid$p, aphids_cor_test_rain$p)
+) %>% mutate(r_coef = round(r_coef, 3),
+             p_val = round(p_val, 4))
+
+
+
+# armyworm
+armyworm_cor_test_wind <- cor_test(armyworm_ev, "mean_wind", "incidence_armyworm")
+armyworm_cor_test_temp <- cor_test(armyworm_ev, "mean_temp", "incidence_armyworm")
+armyworm_cor_test_humid <- cor_test(armyworm_ev, "mean_humid", "incidence_armyworm")
+armyworm_cor_test_rain <- cor_test(armyworm_ev, "mean_rain", "incidence_armyworm")
+
+corr_armyworm_df <- data.frame(
+  weather_parameter = c(armyworm_cor_test_wind$Parameter1, armyworm_cor_test_temp$Parameter1, armyworm_cor_test_humid$Parameter1, armyworm_cor_test_rain$Parameter1),
+  incidence = c(armyworm_cor_test_wind$Parameter2, armyworm_cor_test_temp$Parameter2, armyworm_cor_test_humid$Parameter2, armyworm_cor_test_rain$Parameter2),
+  r_coef = c(armyworm_cor_test_wind$r, armyworm_cor_test_temp$r, armyworm_cor_test_humid$r, armyworm_cor_test_rain$r),
+  p_val  = c(armyworm_cor_test_wind$p, armyworm_cor_test_temp$p, armyworm_cor_test_humid$p, armyworm_cor_test_rain$p)
+) %>% mutate(r_coef = round(r_coef, 3),
+             p_val = round(p_val, 4))
+
+
+
+# faw
+faw_cor_test_wind <- cor_test(faw_ev, "mean_wind", "incidence_faw")
+faw_cor_test_temp <- cor_test(faw_ev, "mean_temp", "incidence_faw")
+faw_cor_test_humid <- cor_test(faw_ev, "mean_humid", "incidence_faw")
+faw_cor_test_rain <- cor_test(faw_ev, "mean_rain", "incidence_faw")
+
+corr_faw_df <- data.frame(
+  weather_parameter = c(faw_cor_test_wind$Parameter1, faw_cor_test_temp$Parameter1, faw_cor_test_humid$Parameter1, faw_cor_test_rain$Parameter1),
+  incidence = c(faw_cor_test_wind$Parameter2, faw_cor_test_temp$Parameter2, faw_cor_test_humid$Parameter2, faw_cor_test_rain$Parameter2),
+  r_coef = c(faw_cor_test_wind$r, faw_cor_test_temp$r, faw_cor_test_humid$r, faw_cor_test_rain$r),
+  p_val  = c(faw_cor_test_wind$p, faw_cor_test_temp$p, faw_cor_test_humid$p, faw_cor_test_rain$p)
+) %>% mutate(r_coef = round(r_coef, 3),
+             p_val = round(p_val, 4))
+
+
+
+weather_pest_corr <-
+  corr_faw_df %>% 
+  full_join(corr_hopper_df) %>% 
+  full_join(corr_cutworm_df) %>% 
+  full_join(corr_armyworm_df) %>%
+  full_join(corr_aphids_df) %>%
+  full_join(corr_borer_df) %>%
+  full_join(corr_earworm_df) %>%
+  full_join(corr_semilooper_df)
+
+weather_pest_corr
+
+```
+
+
+```{r}
+# faw
+print(paste(round(correlation::cor_to_p(cor_faw_wind_incidence, sample_size_corr)$p, decimal_places), "correlation p-value of wind speed and FAW incidence."))
+print(paste(round(correlation::cor_to_p(cor_faw_temp_incidence, sample_size_corr)$p, decimal_places), "correlation p-value of temperature and FAW incidence."))
+print(paste(round(correlation::cor_to_p(cor_faw_humid_incidence, sample_size_corr)$p, decimal_places), "correlation p-value of humidity and FAW incidence."))
+print(paste(round(correlation::cor_to_p(cor_faw_rain_incidence, sample_size_corr)$p, decimal_places), "correlation p-value of rainfall and FAW incidence."))
+
+# aphids
+print(paste(round(correlation::cor_to_p(cor_aphids_wind_incidence, sample_size_corr)$p, decimal_places), "correlation p-value of wind speed and aphids incidence."))
+print(paste(round(correlation::cor_to_p(cor_aphids_temp_incidence, sample_size_corr)$p, decimal_places), "correlation p-value of temperature and aphids incidence."))
+print(paste(round(correlation::cor_to_p(cor_aphids_humid_incidence, sample_size_corr)$p, decimal_places), "correlation p-value of humidity and aphids incidence."))
+print(paste(round(correlation::cor_to_p(cor_aphids_rain_incidence, sample_size_corr)$p, decimal_places), "correlation p-value of rainfall and aphids incidence."))
+
+
+# borer
+print(paste(round(correlation::cor_to_p(cor_borer_wind_incidence, sample_size_corr)$p, decimal_places), "correlation p-value of wind speed and borer incidence."))
+print(paste(round(correlation::cor_to_p(cor_borer_temp_incidence, sample_size_corr)$p, decimal_places), "correlation p-value of temperature and borer incidence."))
+print(paste(round(correlation::cor_to_p(cor_borer_humid_incidence, sample_size_corr)$p, decimal_places), "correlation p-value of humidity and borer incidence."))
+print(paste(round(correlation::cor_to_p(cor_borer_rain_incidence, sample_size_corr)$p, decimal_places), "correlation p-value of rainfall and borer incidence."))
 
 
 # earworm
-print(paste(round(cor_earworm_wind_incidence, 3), "correlation value of wind speed and Earworm incidence."))
-print(paste(round(cor_earworm_temp_incidence, 3), "correlation value of temperature and Earworm incidence."))
-print(paste(round(cor_earworm_humid_incidence, 3), "correlation value of humidity and Earworm incidence."))
-print(paste(round(cor_earworm_rain_incidence, 3), "correlation value of rainfall and Earworm incidence."))
+print(paste(round(correlation::cor_to_p(cor_earworm_wind_incidence, sample_size_corr)$p, decimal_places), "correlation p-value of wind speed and earworm incidence."))
+print(paste(round(correlation::cor_to_p(cor_earworm_temp_incidence, sample_size_corr)$p, decimal_places), "correlation p-value of temperature and earworm incidence."))
+print(paste(round(correlation::cor_to_p(cor_earworm_humid_incidence, sample_size_corr)$p, decimal_places), "correlation p-value of humidity and earworm incidence."))
+print(paste(round(correlation::cor_to_p(cor_earworm_rain_incidence, sample_size_corr)$p, decimal_places), "correlation p-value of rainfall and earworm incidence."))
 
 
 # Armyworm
-print(paste(round(cor_armyworm_wind_incidence, 3), "correlation value of wind speed and Armyworm incidence."))
-print(paste(round(cor_armyworm_temp_incidence, 3), "correlation value of temperature and Armyworm incidence."))
-print(paste(round(cor_armyworm_humid_incidence, 3), "correlation value of humidity and Armyworm incidence."))
-print(paste(round(cor_armyworm_rain_incidence, 3), "correlation value of rainfall and Armyworm incidence."))
+print(paste(round(correlation::cor_to_p(cor_armyworm_wind_incidence, sample_size_corr)$p, decimal_places), "correlation p-value of wind speed and armyworm incidence."))
+print(paste(round(correlation::cor_to_p(cor_armyworm_temp_incidence, sample_size_corr)$p, decimal_places), "correlation p-value of temperature and armyworm incidence."))
+print(paste(round(correlation::cor_to_p(cor_armyworm_humid_incidence, sample_size_corr)$p, decimal_places), "correlation p-value of humidity and armyworm incidence."))
+print(paste(round(correlation::cor_to_p(cor_armyworm_rain_incidence, sample_size_corr)$p, decimal_places), "correlation p-value of rainfall and armyworm incidence."))
 
 
 # Cutworm
-print(paste(round(cor_cutworm_wind_incidence, 3), "correlation value of wind speed and Cutworm incidence."))
-print(paste(round(cor_cutworm_temp_incidence, 3), "correlation value of temperature and Cutworm incidence."))
-print(paste(round(cor_cutworm_humid_incidence, 3), "correlation value of humidity and Cutworm incidence."))
-print(paste(round(cor_cutworm_rain_incidence, 3), "correlation value of rainfall and Cutworm incidence."))
+print(paste(round(correlation::cor_to_p(cor_cutworm_wind_incidence, sample_size_corr)$p, decimal_places), "correlation p-value of wind speed and cutworm incidence."))
+print(paste(round(correlation::cor_to_p(cor_cutworm_temp_incidence, sample_size_corr)$p, decimal_places), "correlation p-value of temperature and cutworm incidence."))
+print(paste(round(correlation::cor_to_p(cor_cutworm_humid_incidence, sample_size_corr)$p, decimal_places), "correlation p-value of humidity and cutworm incidence."))
+print(paste(round(correlation::cor_to_p(cor_cutworm_rain_incidence, sample_size_corr)$p, decimal_places), "correlation p-value of rainfall and cutworm incidence."))
 
 # Hopper
-print(paste(round(cor_hopper_wind_incidence, 3), "correlation value of wind speed and Hopper incidence."))
-print(paste(round(cor_temp_incidence, 3), "correlation value of temperature and Hopper incidence."))
-print(paste(round(cor_hopper_humid_incidence, 3), "correlation value of humidity and Hopper incidence."))
-print(paste(round(cor_hopper_rain_incidence, 3), "correlation value of rainfall and Hopper incidence."))
-
+print(paste(round(correlation::cor_to_p(cor_hopper_wind_incidence, sample_size_corr)$p, decimal_places), "correlation p-value of wind speed and hopper incidence."))
+print(paste(round(correlation::cor_to_p(cor_hopper_temp_incidence, sample_size_corr)$p, decimal_places), "correlation p-value of temperature and hopper incidence."))
+print(paste(round(correlation::cor_to_p(cor_hopper_humid_incidence, sample_size_corr)$p, decimal_places), "correlation p-value of humidity and hopper incidence."))
+print(paste(round(correlation::cor_to_p(cor_hopper_rain_incidence, sample_size_corr)$p, decimal_places), "correlation p-value of rainfall and hopper incidence."))
 
 
 
